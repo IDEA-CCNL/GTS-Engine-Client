@@ -79,7 +79,7 @@ class GTSEngineClient(object):
         resp_data = self.__post(upload_file_url, data=payload, files=files)
         return resp_data
 
-    def start_train(self, task_id, train_data, val_data, label_data):
+    def start_train(self, task_id, train_data, val_data, test_data, label_data, gpuid):
         train_api_url = self._base_url + "/api/train"
         payload = {
             "task_id": task_id,
@@ -87,6 +87,7 @@ class GTSEngineClient(object):
             "val_data": val_data,
             "test_data": val_data,
             "label_data": label_data,
+            "gpuid": gpuid
         }
         resp_data = self.__post(train_api_url, payload)
         return resp_data
@@ -100,10 +101,26 @@ class GTSEngineClient(object):
         return resp_data
 
     def start_inference(self, task_id):
-        pass
+        stop_train_url = self._base_url + "/api/start_inference/"
+        payload = {
+            "task_id": task_id
+        }
+        resp_data = self.__post(stop_train_url, payload)
+        return resp_data
 
-    def stop_inference(self, task_id):
-        pass
+    def end_inference(self, task_id):
+        stop_train_url = self._base_url + "/api/end_inference/"
+        payload = {
+            "task_id": task_id
+        }
+        resp_data = self.__post(stop_train_url, payload)
+        return resp_data
 
     def inference(self, task_id, samples):
-        pass
+        stop_train_url = self._base_url + "/api/predict/"
+        payload = {
+            "task_id": task_id,
+            "sentences": samples
+        }
+        resp_data = self.__post(stop_train_url, payload)
+        return resp_data
