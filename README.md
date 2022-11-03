@@ -53,10 +53,19 @@ print(client.delete_task(task_id="test_task2"))
 print(client.upload_file(task_id="test_task1", local_data_path="train.json"))
 
 # 开始训练
-print(client.start_train(task_id="test_task1", train_data="train.json", val_data="test.json", label_data="label.json"))
+print(client.start_train(task_id="test_task1", train_data="train.json", val_data="dev.json", test_data="test.json", label_data="label.json", gpuid=1))
 
 # 终止训练
 print(client.stop_train(task_id="test_task1"))
+
+# 加载已训练好的模型
+print(client.start_inference(task_id="test_task1"))
+
+# 开始预测
+print(client.inference(task_id="test_task1", samples=["怎样的房子才算户型方正？","文登区这些公路及危桥将 进入封闭施工，请注意绕行！"]))
+
+# 结束预测
+print(client.end_inference(task_id="test_task1"))
 
 ```
 
