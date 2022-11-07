@@ -35,38 +35,71 @@ python setup.py install
 ```python
 from gts_engine_client import GTSEngineClient
 
+#ip和port参数与启动服务的ip和port一致
 client = GTSEngineClient(ip="192.168.190.2", port="5207")
 
-# 创建任务
+# 创建任务 (为了方便演示，创建2个任务)
 print(client.create_task(task_name="test_task1", task_type="classification"))
+{'ret_code': 200, 'message': 'task成功创建', 'task_id': 'test_task1'}
+
+print(client.create_task(task_name="test_task2", task_type="classification"))
+{'ret_code': 200, 'message': 'task成功创建', 'task_id': 'test_task2'}
 
 # 列出任务列表
 print(client.list_tasks())
+{'ret_code': 200, 'message': 'Success', 'tasks': ['test_task1', 'test_task2']}
 
 # 查看任务状态
 print(client.check_task_status(task_id="test_task1"))
+{'ret_code': 0, 'message': 'Initialized'}
 
-# 删除任务
+# 删除任务  
 print(client.delete_task(task_id="test_task2"))
+{'ret_code': 200, 'message': 'Success'}
 
-# 上传文件
+print(client.list_tasks())  #查看任务状态 删除后任务test_task2已经不在任务列表
+{'ret_code': 200, 'message': 'Success', 'tasks': ['test_task1']}
+
+# 上传文件  (文件地址写绝对路径)
 print(client.upload_file(task_id="test_task1", local_data_path="train.json"))
+{'ret_code': 200, 'message': '上传成功'}
+print(client.upload_file(task_id="test_task1", local_data_path="dev.json"))
+{'ret_code': 200, 'message': '上传成功'}
+print(client.upload_file(task_id="test_task1", local_data_path="test.json"))
+{'ret_code': 200, 'message': '上传成功'}
+print(client.upload_file(task_id="test_task1", local_data_path="labels.json"))
+{'ret_code': 200, 'message': '上传成功'}
 
 # 开始训练
-print(client.start_train(task_id="test_task1", train_data="train.json", val_data="dev.json", test_data="test.json", label_data="label.json", gpuid=1))
+print(client.start_train(task_id="test_task1", train_data="train.json", val_data="dev.json", test_data="test.json", label_data="labels.json", gpuid=1))
+{'ret_code': 200, 'message': '训练调度成功'}
 
-# 终止训练
+print(client.check_task_status(task_id="test_task1"))   #查看任务状态  任务在训练中
+{'ret_code': 1, 'message': 'On Training'}
+
+# 终止训练  （若提前终止训练）
 print(client.stop_train(task_id="test_task1"))
+{'ret_code': 200, 'message': '终止训练成功'}
+
+print(client.check_task_status(task_id="test_task1"))   #查看任务状态  任务已停止训练
+{'ret_code': 3, 'message': 'Train Stopped'}
 
 # 加载已训练好的模型
 print(client.start_inference(task_id="test_task1"))
+{'ret_code': 200, 'message': '加载预测模型'}
+
+print(client.check_task_status(task_id="test_task1"))   #查看任务状态  预测模型已加载
+{'ret_code': 2, 'message': 'On Inference'}
 
 # 开始预测
-print(client.inference(task_id="test_task1", samples=["怎样的房子才算户型方正？","文登区这些公路及危桥将 进入封闭施工，请注意绕行！"]))
+print(client.inference(task_id="test_task1", samples=[{"content":"怎样的房子才算户型方正？"}, {"content":"文登区这些公路及危桥将进入 封闭施工，请注意绕行！"}]))
 
 # 结束预测
 print(client.end_inference(task_id="test_task1"))
+{'ret_code': 200, 'message': '释放预测模型'}
 
+print(client.check_task_status(task_id="test_task1"))   #查看任务状态  回到训练成功的状态
+{'ret_code': 2, 'message': 'Train Success'}
 ```
 
 您可以参考GTS Engine的文档来一步一步地使用GTS Engine快速地训练一个FewCLUE任务。
