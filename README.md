@@ -77,6 +77,7 @@ print(client.start_train(task_id="test_task1", train_data="train.json", val_data
 print(client.check_task_status(task_id="test_task1"))   #查看任务状态  任务在训练中
 {'ret_code': 1, 'message': 'On Training'}
 
+
 # 终止训练  （若提前终止训练）
 print(client.stop_train(task_id="test_task1"))
 {'ret_code': 200, 'message': '终止训练成功'}
