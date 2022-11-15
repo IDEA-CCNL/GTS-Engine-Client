@@ -1,12 +1,16 @@
 from setuptools import setup, find_packages
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name="gts_engine_client",
-    version="0.1.0",
+    version="0.1.1",
     description="gts_engine_client",
-    long_description="client sdk for git_engine development suite",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     license="MIT Licence",
-    url="https://idea.edu.cn",
+    url="https://github.com/IDEA-CCNL/GTS-Engine-Client",
     author="pankunhao",
     author_email="pankunhao@gmail.com",
 
@@ -19,4 +23,9 @@ setup(
     ],
 
     scripts=[],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ],
 )
