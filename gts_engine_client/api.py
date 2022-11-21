@@ -81,15 +81,19 @@ class GTSEngineClient(object):
         resp_data = self.__post(upload_file_url, data=payload, files=files)
         return resp_data
 
-    def start_train(self, task_id, train_data, val_data, test_data, label_data, gpuid, train_mode="standard"):
+    def start_train(self, task_id, train_data, val_data, label_data, gpuid, test_data=None, unlabel_data=None, max_num_epoch=1, min_num_epoch=1, seed=42, train_mode="standard"):
         train_api_url = self._base_url + "/api/train"
         payload = {
             "task_id": task_id,
             "train_mode": train_mode,
             "train_data": train_data,
             "val_data": val_data,
-            "test_data": val_data,
+            "test_data": test_data,
             "label_data": label_data,
+            "unlabel_data": unlabel_data,
+            "max_num_epoch": max_num_epoch,
+            "min_num_epoch": min_num_epoch,
+            "seed": seed,
             "gpuid": gpuid
         }
         resp_data = self.__post(train_api_url, payload)
