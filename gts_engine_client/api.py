@@ -20,6 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
 import os
 import sys
+import json
 import requests
 
 class GTSEngineClient(object):
@@ -38,11 +39,12 @@ class GTSEngineClient(object):
         else:
             return {"ret_code": resp.status_code, "message": "Server Failed"}
 
-    def create_task(self, task_name: str, task_type: str):
+    def create_task(self, task_name: str, task_type: str, engine_type: str):
         create_task_api_url = self._base_url + "/api/create_task/"
         payload = {
             "task_name": task_name,
             "task_type": task_type,
+            "engine_type": engine_type,
         }
         resp_data = self.__post(create_task_api_url, payload)
         return resp_data
@@ -79,10 +81,11 @@ class GTSEngineClient(object):
         resp_data = self.__post(upload_file_url, data=payload, files=files)
         return resp_data
 
-    def start_train(self, task_id, train_data, val_data, test_data, label_data, gpuid):
+    def start_train(self, task_id, train_data, val_data, test_data, label_data, gpuid, train_mode="standard"):
         train_api_url = self._base_url + "/api/train"
         payload = {
             "task_id": task_id,
+            "train_mode": train_mode,
             "train_data": train_data,
             "val_data": val_data,
             "test_data": val_data,
