@@ -90,7 +90,7 @@ class GTSEngineClient(object):
             "val_data": val_data,
             "test_data": test_data,
             "label_data": label_data,
-            "unlabel_data": unlabeled_data,
+            "unlabeled_data": unlabeled_data,
             "max_num_epoch": max_num_epoch,
             "min_num_epoch": min_num_epoch,
             "seed": seed,

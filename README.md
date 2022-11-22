@@ -15,7 +15,7 @@ GTS Engine Client是配合GTS Engine使用的官方API，通过封装HTTP Post�
 您可以通过pip直接进行安装。
 
 ```bash
-pip install gts-engine-client
+pip install --upgrade gts-engine-client
 ```
 
 也可以clone下github项目后进行安装。
@@ -39,10 +39,10 @@ from gts_engine_client import GTSEngineClient
 client = GTSEngineClient(ip="192.168.190.2", port="5207")
 
 # 创建任务 (为了方便演示，创建2个任务)
-client.create_task(task_name="test_task1", task_type="classification")
+client.create_task(task_name="test_task1", task_type="classification", engine_type="qiankunding")
 # {'ret_code': 200, 'message': 'task成功创建', 'task_id': 'test_task1'}
 
-client.create_task(task_name="test_task2", task_type="classification")
+client.create_task(task_name="test_task2", task_type="classification", engine_type="qiankunding")
 # {'ret_code': 200, 'message': 'task成功创建', 'task_id': 'test_task2'}
 
 # 列出任务列表
@@ -57,10 +57,11 @@ client.check_task_status(task_id="test_task1")
 client.delete_task(task_id="test_task2")
 # {'ret_code': 200, 'message': 'Success'}
 
+#查看任务状态
 client.list_tasks()  #查看任务状态 删除后任务test_task2已经不在任务列表
 # {'ret_code': 200, 'message': 'Success', 'tasks': ['test_task1']}
 
-# 上传文件  (文件地址写绝对路径)
+# 上传文件 (文件地址写绝对路径)
 client.upload_file(task_id="test_task1", local_data_path="train.json")
 # {'ret_code': 200, 'message': '上传成功'}
 client.upload_file(task_id="test_task1", local_data_path="dev.json")
@@ -70,11 +71,24 @@ client.upload_file(task_id="test_task1", local_data_path="test.json")
 client.upload_file(task_id="test_task1", local_data_path="labels.json")
 # {'ret_code': 200, 'message': '上传成功'}
 
-# 开始训练
+# 开始训练 (使用标准模式)
 client.start_train(
-  task_id="test_task1", train_data="train.json", val_data="dev.json", test_data="test.json", label_data="labels.json", gpuid=1)
+  task_id="test_task1", train_data="train.json", val_data="dev.json", \
+    test_data="test.json", label_data="labels.json", \
+    max_num_epoch=1, min_num_epoch=1, seed=42, gpuid=1)  #默认训练模式是标准模式
 # {'ret_code': 200, 'message': '训练调度成功'}
 
+# 开始训练 (使用高级模式)
+client.upload_file(task_id="test_task1", local_data_path="unlabeled.json") #高级模式需要上传无标签数据
+# {'ret_code': 200, 'message': '上传成功'}
+
+client.start_train(
+  task_id="test_task1", train_data="train.json", val_data="dev.json", \
+    test_data="test.json",label_data="labels.json", unlabeled_data="unlabeled.json", \
+    max_num_epoch=3, min_num_epoch=3, gpuid=1, seed=42, \
+    train_mode="advanced")  #train_mode训练模型需要选择 "advanced" 高级模式
+
+#查看任务状态
 client.check_task_status(task_id="test_task1")   #查看任务状态  任务在训练中
 # {'ret_code': 1, 'message': 'On Training'}
 
@@ -83,6 +97,7 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  任务在�
 client.stop_train(task_id="test_task1")
 # {'ret_code': 200, 'message': '终止训练成功'}
 
+#查看任务状态
 client.check_task_status(task_id="test_task1")   #查看任务状态  任务已停止训练
 # {'ret_code': 3, 'message': 'Train Stopped'}
 
@@ -90,6 +105,7 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  任务已�
 client.start_inference(task_id="test_task1")
 # {'ret_code': 200, 'message': '加载预测模型'}
 
+#查看任务状态
 client.check_task_status(task_id="test_task1")   #查看任务状态  预测模型已加载
 # {'ret_code': 2, 'message': 'On Inference'}
 
@@ -102,6 +118,7 @@ client.inference(
 client.end_inference(task_id="test_task1")
 # {'ret_code': 200, 'message': '释放预测模型'}
 
+#查看任务状态
 client.check_task_status(task_id="test_task1")   #查看任务状态  回到训练成功的状态
 # {'ret_code': 2, 'message': 'Train Success'}
 ```
@@ -110,16 +127,18 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 
 ## 接口详情
 
+
 #### 创建任务
 
-`create_task(self, task_name: str, task_type: str)`
+`create_task(self, task_name: str, task_type: str, engine_type: str)`
 
 * 输入参数
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `task_name` | str | 任务名称，需要不同于其他已有的任务 |
-| `task_type` | str | 任务类型，目前仅支持以下两种任务：<br> - classification：文本分类 <br> - similarity：句子相似度 |
+| `task_type` | str | 任务类型，目前仅支持以下三种任务：<br> - classification：文本分类 <br> - similarity：句子相似度 <br> - nli：推理任务 |
+| `engine_type` | str | 引擎类型<br> - qiankunding：乾坤鼎  |
 
 * 输出参数
 
@@ -128,7 +147,8 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `ret_code` | int | 返回码： <br> - 200：创建成功 <br> - -100：创建失败 |
-| `task_id` | str | 任务对应的id，全局唯一，目前它和task_name相同 |
+| `task_id` | str | 任务对应的id，全局唯一 |
+| `message` | str | 其他返回提示消息 |
 
 #### 列出任务列表
 * 输入参数:空
@@ -139,8 +159,9 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
-| `ret_code` | int | 返回码： <br> - 200：返回成功 <br> - -100：返回失败 |
+| `ret_code` | int | 返回码： <br> - 200：返回成功  <br> - -200：返回失败，任务信息文件不存在  <br> - -100：返回失败 |
 | `tasks` | str | 返回任务的列表 |
+| `message` | str | 其他返回提示消息 |
 
 #### 查看任务状态
 * 输入参数
@@ -153,8 +174,9 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
-| `retcode` | int | 训练进度：<br>未启动训练：1<br>训练中：2 <br>训练成功：3<br>训练失败：4 |
+| `retcode` | int | 返回码： <br>- 0：初始化 <br> - 1：训练中<br>- 2：训练成功 <br> - 3：训练失败 <br> - 4：训练停止 <br> - 5：开启预测 <br> - -100：返回失败 <br> - -200：返回失败|
 | `taskid` | str | 任务id |
+| `message` | str | 其他返回提示消息 |
 
 #### 删除任务
 * 输入参数
@@ -169,6 +191,7 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `ret_code` | int | 返回码： <br> - 200：返回成功 <br> - -100：返回失败 |
+| `message` | str | 其他返回提示消息 |
 
 #### 上传文件
 * 输入参数
@@ -182,6 +205,7 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `ret_code` | int | 返回码： <br> - 200：返回成功<br> - -100：返回失败 |
+| `message` | str | 其他返回提示消息 |
 
 #### 开始训练
 * 输入参数
@@ -193,17 +217,21 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | `val_data` | str | 验证数据的文件名 |
 | `test_data` | str | 测试数据的文件名 |
 | `label_data` | str | 标签数据的文件名 |
+| `unlabeled_data` | str | 无标签数据的文件名|
+| `train_mode` | str | 训练模式，以下两种方式可选：  <br> - standard：标准模式 <br> - advanced：高级模式 |
 | `seed` | int | 随机种子 |
 | `max_num_epoch` | int | 最大训练轮次 |
 | `min_num_epoch` | int | 最小训练轮次 |
+| `gpuid` | int | 指定训练的GPU |
 * 输出参数
 
 函数的返回值是一个字典，字典中包含如下字段：
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
-| `ret_code` | int | 返回码： <br> - 200：启动训练成功 <br> - -100：启动训练失败 |
+| `ret_code` | int | 返回码： <br> - 200：启动训练成功 <br> - -100：启动训练失败 <br> - -102：返回失败 <br> - -101：返回失败|
 | `message` | str | 其他返回提示消息 |
+
 
 #### 终止训练
 * 输入参数
@@ -217,7 +245,8 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
-| `ret_code` | int | 返回码： <br> - 200：停止成功 <br> - -100：停止失败 |
+| `ret_code` | int | 返回码： <br> - 200：停止成功 <br> - -100：停止失败 <br> - -101：停止失败 <br> - -102：停止失败|
+| `message` | str | 其他返回提示消息 |
 
 #### 开始推理
 * 输入参数
@@ -232,13 +261,16 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `ret_code` | int | 返回码： <br> - 200：推理模型启动成功 <br> - -100：推理模型启动失败 |
+| `message` | str | 其他返回提示消息 |
 #### 推理
+
 * 输入参数
 
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `taskid` | str | 任务id |
 | `samples` | list | list中每个元素是待预测样本 |
+
 * 输出参数
 
 函数的返回值是一个字典，字典中包含如下字段：
@@ -248,7 +280,9 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | `ret_code` | int | 返回码： <br> - 200：推理成功 <br> - -100：未启动推理服务 |
 | `predictions` | list | 推理结果的标签列表 |
 | `probabilities` | list | 推理结果的概率分布 |
+| `message` | str | 其他返回提示消息 |
 #### 终止推理
+
 * 输入参数
 
 | 参数名 | 参数类型 | 释义 |
