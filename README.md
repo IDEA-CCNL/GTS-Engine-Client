@@ -75,7 +75,7 @@ client.upload_file(task_id="test_task1", local_data_path="labels.json")
 client.start_train(
   task_id="test_task1", train_data="train.json", val_data="dev.json", \
     test_data="test.json", label_data="labels.json", \
-    max_num_epoch=1, min_num_epoch=1, seed=42, gpuid=1)  #默认训练模式是标准模式
+    max_num_epoch=1, min_num_epoch=1, seed=42, gpuid=1, train_mode="standard")  #默认训练模式是标准模式
 # {'ret_code': 200, 'message': '训练调度成功'}
 
 # 开始训练 (使用高级模式)
@@ -137,8 +137,8 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | 参数名 | 参数类型 | 释义 |
 | ---- | ---- | ---- |
 | `task_name` | str | 任务名称，需要不同于其他已有的任务 |
-| `task_type` | str | 任务类型，目前仅支持以下三种任务：<br> - classification：文本分类 <br> - similarity：句子相似度 <br> - nli：推理任务 |
-| `engine_type` | str | 引擎类型<br> - qiankunding：乾坤鼎  |
+| `engine_type` | str | 引擎类型<br> - qiankunding：乾坤鼎 <br> - bagualu: 八卦炉  |
+| `task_type` | str | 根据engine_type选择其支持的任务类型：<br>qiankunding支持三种任务类型 <br>- classification：文本分类 <br> - similarity：句子相似度 <br> - nli：推理任务 <br> bagualu支持的两种任务类型 <br>- classification：文本分类 <br> - ie：信息抽取 |
 
 * 输出参数
 
