@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="gts_engine_client",
-    version="0.1.3",
+    version="0.1.5",
     description="gts_engine_client",
     long_description=long_description,
     long_description_content_type="text/markdown",
