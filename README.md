@@ -138,7 +138,7 @@ client.check_task_status(task_id="test_task1")   #查看任务状态  回到训�
 | ---- | ---- | ---- |
 | `task_name` | str | 任务名称，需要不同于其他已有的任务 |
 | `engine_type` | str | 引擎类型<br> - qiankunding：乾坤鼎 <br> - bagualu: 八卦炉  |
-| `task_type` | str | 根据engine_type选择其支持的任务类型：<br>qiankunding支持三种任务类型 <br>- classification：文本分类 <br> - similarity：句子相似度 <br> - nli：推理任务 <br> bagualu支持的两种任务类型 <br>- classification：文本分类 <br> - ie：信息抽取 |
+| `task_type` | str | 根据engine_type选择其支持的任务类型：<br>qiankunding支持三种任务类型 <br>- classification：文本分类 <br> - similarity：句子相似度 <br> - nli：推理任务 <br> bagualu支持的两种任务类型 <br>- classification：文本分类 <br> - ie：信息抽取 <br> - summary：摘要生成 |
 
 * 输出参数
 
